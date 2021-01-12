@@ -1,0 +1,30 @@
+{
+  "slug": "TxtTest",
+  "name": "TxtTest",
+  "version": "1.0.0",
+  "license": "proprietary",
+  "brand": "TxtTest",
+  "author": "Frank Seifert",
+  "authorEmail": "",
+  "authorUrl": "",
+  "pluginUrl": "",
+  "manualUrl": "",
+  "sourceUrl": "",
+  "donateUrl": "",
+  "changelogUrl": "",
+  "modules": 
+  [
+    {
+      "slug": "Blank03",
+      "name": "Blank03",
+      "description": "Blank 3",
+      "tags": ["BLANK"]
+    },
+    {
+      "slug": "Blank06",
+      "name": "Blank06",
+      "description": "Blank 6",
+      "tags": ["BLANK"]
+    }
+  ]
+}

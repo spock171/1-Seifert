@@ -1,0 +1,84 @@
+    {
+      "slug": "VCO_F1",
+      "name": "VCO_F1",
+      "description": "",
+      "tags": []
+    },
+    {
+      "slug": "VCO_F2",
+      "name": "VCO_F2",
+      "description": "",
+      "tags": []
+    },
+    {
+      "slug": "VCF_F1",
+      "name": "VCF_F1",
+      "description": "",
+      "tags": []
+    },
+    {
+      "slug": "VCA_F1",
+      "name": "VCA_F1",
+      "description": "",
+      "tags": []
+    },
+    {
+      "slug": "ADSR_F1",
+      "name": "ADSR_F1",
+      "description": "",
+      "tags": []
+    },
+    {
+      "slug": "Chord_G1",
+      "name": "Chord_G1",
+      "description": "",
+      "tags": []
+    },
+    {
+      "slug": "Octave_G1",
+      "name": "Octave_G1",
+      "description": "",
+      "tags": []
+    },
+    {
+      "slug": "Fade_G2",
+      "name": "Fade_G2",
+      "description": "",
+      "tags": []
+    },
+    {
+      "slug": "Binary_G1",
+      "name": "Binary_G1",
+      "description": "",
+      "tags": []
+    },
+    {
+      "slug": "Seq_G1",
+      "name": "Seq_G1",
+      "description": "",
+      "tags": []
+    },
+    {
+      "slug": "Seq_G2",
+      "name": "Seq_G2",
+      "description": "",
+      "tags": []
+    },
+    {
+      "slug": "Keys_G1",
+      "name": "Keys_G1",
+      "description": "",
+      "tags": []
+    },
+    {
+      "slug": "VU_G1",
+      "name": "VU_G1",
+      "description": "",
+      "tags": []
+    },
+    {
+      "slug": "Scope_G1",
+      "name": "Scope_G1",
+      "description": "",
+      "tags": []
+    },

@@ -1,0 +1,125 @@
+{
+  "slug": "Gratrix",
+  "name": "Gratrix",
+  "version": "1.0.0",
+  "license": "proprietary",
+  "brand": "Gratrix",
+  "author": "Sam Gratrix",
+  "authorEmail": "",
+  "authorUrl": "http://gratrix.net/vcvrack/",
+  "pluginUrl": "",
+  "manualUrl": "",
+  "sourceUrl": "",
+  "donateUrl": "",
+  "changelogUrl": "",
+  "modules": [
+    {
+      "slug": "VCF-F1",
+      "name": "VCF-F1",
+      "description": "",
+      "tags": ["Filter"]
+    },
+    {
+      "slug": "ADSR-F1",
+      "name": "ADSR-F1",
+      "description": "",
+      "tags": ["ADSR", "Envelope generator"]
+    },
+    {
+      "slug": "VCO-F1",
+      "name": "VCO-F1",
+      "description": "",
+      "tags": ["Oscillator"]
+    },
+    {
+      "slug": "VCO-F2",
+      "name": "VCO-F2",
+      "description": "",
+      "tags": ["Oscillator"]
+    },
+    {
+      "slug": "VCA-F1",
+      "name": "VCA-F1",
+      "description": "",
+      "tags": ["Voltage-controlled Amplifier"]
+    },
+    {
+      "slug": "Seq-G1",
+      "name": "Seq-G1",
+      "description": "",
+      "tags": ["Sequencer"]
+    },
+    {
+      "slug": "Seq-G2",
+      "name": "Seq-G2",
+      "description": "",
+      "tags": ["Sequencer"]
+    },
+    {
+      "slug": "Keys-G1",
+      "name": "Keys-G1",
+      "description": "",
+      "tags": ["Utility"]
+    },
+    {
+      "slug": "Octave-G1",
+      "name": "Octave-G1",
+      "description": "",
+      "tags": ["Quantizer"]
+    },
+    {
+      "slug": "Chord-G1",
+      "name": "Chord-G1",
+      "description": "",
+      "tags": ["Sequencer"]
+    },
+    {
+      "slug": "Binary-G1",
+      "name": "Binary-G1",
+      "description": "",
+      "tags": ["Utility"]
+    },
+    {
+      "slug": "Fade-G1",
+      "name": "Fade-G1",
+      "description": "",
+      "tags": ["MIXER"]
+    },
+    {
+      "slug": "Fade-G2",
+      "name": "Fade-G2",
+      "description": "",
+      "tags": ["Mixer"]
+    },
+    {
+      "slug": "VU-G1",
+      "name": "VU-G1",
+      "description": "VU-Meter",
+      "tags": ["Visual"]
+    },
+    {
+      "slug": "Blank-03",
+      "name": "Blank-03",
+      "description": "Blank 3",
+      "tags": ["Blank"]
+    },
+    {
+      "slug": "Blank-06",
+      "name": "Blank-06",
+      "description": "Blank 6",
+      "tags": ["Blank"]
+    },
+    {
+      "slug": "Blank-09",
+      "name": "Blank-09",
+      "description": "Blank 9",
+      "tags": ["Blank"]
+    },
+    {
+      "slug": "Blank-12",
+      "name": "Blank-12",
+      "description": "Blank 12",
+      "tags": ["Blank"]
+    }
+  ]
+}
