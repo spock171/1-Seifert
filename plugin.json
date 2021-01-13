@@ -44,18 +44,6 @@
       "tags": ["Voltage-controlled Amplifier"]
     },
     {
-      "slug": "Seq-G1",
-      "name": "Seq-G1",
-      "description": "",
-      "tags": ["Sequencer"]
-    },
-    {
-      "slug": "Seq-G2",
-      "name": "Seq-G2",
-      "description": "",
-      "tags": ["Sequencer"]
-    },
-    {
       "slug": "Keys-G1",
       "name": "Keys-G1",
       "description": "",

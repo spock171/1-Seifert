@@ -88,9 +88,9 @@ struct Chord_G1 : Module
 
 	Chord_G1() {
 		config(NUM_PARAMS, NUM_INPUTS, N * NUM_OUTPUTS, NUM_LIGHTS);
-		configParam(NOTE_PARAM, 0.0f, 1.0f, 0.0f, "Ausgabe");
-		configParam(PROG_PARAM, 0.0f, 12.0f, 12.0f, "Select Pattern");
-		
+		configParam(NOTE_PARAM, 0.0f, 1.0f, 0.0f, "");
+		configParam(PROG_PARAM, 0.0f, 12.0f, 12.0f, "Select Program");
+
 		for (std::size_t i=0; i<T; ++i)
 		{
 			configParam(i + Chord_G1::NOTE_PARAM, 0.0f, 1.0f, 0.0f, note_text[i]);
@@ -240,14 +240,28 @@ struct Chord_G1 : Module
 
 		{
 			std::size_t i = 0;
-
-			for (std::size_t j = 0; j < T; ++j)
+			if (act_prm)
 			{
-				if (note_enable[prg_cv.key][j])
+				for (std::size_t j = 0; j < T; ++j)
 				{
-					outputs[omap(GATE_OUTPUT, i)].setVoltage(gate);
-					outputs[omap(VOCT_OUTPUT, i)].setVoltage(input.out + static_cast<float>(j) / 12.0f);
-					++i;
+					if (note_enable[prg_prm.key][j])
+					{
+						outputs[omap(GATE_OUTPUT, i)].setVoltage(gate);
+						outputs[omap(VOCT_OUTPUT, i)].setVoltage(input.out + static_cast<float>(j) / 12.0f);
+						++i;
+					}
+				}
+			}
+			else
+			{
+				for (std::size_t j = 0; j < T; ++j)
+				{
+					if (note_enable[prg_cv.key][j])
+					{
+						outputs[omap(GATE_OUTPUT, i)].setVoltage(gate);
+						outputs[omap(VOCT_OUTPUT, i)].setVoltage(input.out + static_cast<float>(j) / 12.0f);
+						++i;
+					}
 				}
 			}
 
@@ -272,7 +286,7 @@ struct Chord_G1 : Module
 //============================================================================================================
 
 static double x0(double shift = 0) { return 6+6*15 + shift * 66; }
-static double xd(double i, double radius = 37.0, double spill = 1.65) { return (x0()    + (radius + spill * i) * GControls::dx(i, E)); }
+static double xd(double i, double radius = 37.0, double spill = 1.65) { return (x0()               + (radius + spill * i) * GControls::dx(i, E)); }
 static double yd(double i, double radius = 37.0, double spill = 1.65) { return (GControls::gy(1.5) + (radius + spill * i) * GControls::dy(i, E)); }
 
 
