@@ -6,6 +6,8 @@ Notes by Frank Seifert:
 Improvements:
 Now running in VCV-Rack V1.1.6
 Chord-G1: Now playing notes in program-mode
+Some Tooltips added
+
 
 Known issues:
 Keys-G1: unknwon functionality
