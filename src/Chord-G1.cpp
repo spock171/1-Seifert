@@ -81,7 +81,7 @@ struct Chord_G1 : Module
 	dsp::SchmittTrigger note_trigger[T];
 	bool note_enable[E][T] = {};
 	float gen[N] = {0,1,2,3,4,5};
-	const char *note_text[T] = {"C","C#","D","D#","E","F","F#","G","G#","A","Bb","B","C","C#","D","D#","E","F","F#","G","G#","A","Bb","B","C"};
+	const char *note_text[T] = {"C","C#","D","D#","E","F","F#","G","G#","A","A#","B","C","C#","D","D#","E","F","F#","G","G#","A","A#","B","C"};
 
 	//--------------------------------------------------------------------------------------------------------
 	//! \brief Constructor.
@@ -115,10 +115,8 @@ struct Chord_G1 : Module
 					}
 				}
 			}
-
 			json_object_set_new(rootJ, "note_enable", neJA);
 		}
-
 		return rootJ;
 	}
 
@@ -175,7 +173,6 @@ struct Chord_G1 : Module
 		float gate = clamp(inputs[GATE_INPUT].getNormalVoltage(10.0f), 0.0f, 10.0f);
 
 		// Input leds
-
 		if (act_prm)
 		{
 			leds[PROG_LIGHT + prg_prm.key*2] = 1.0f;  // Green
@@ -184,15 +181,12 @@ struct Chord_G1 : Module
 		{
 			leds[PROG_LIGHT + prg_cv.key*2+1] = 1.0f;  // Red
 		}
-
 		leds[FUND_LIGHT + input.key] = 1.0f;  // Red
 
 		// Chord bit
-
 		if (act_prm)
 		{
 			// Detect buttons and deduce what's enabled
-
 			for (std::size_t j = 0; j < T; ++j)
 			{
 				if (note_trigger[j].process(params[j + NOTE_PARAM].getValue()))
@@ -200,7 +194,9 @@ struct Chord_G1 : Module
 					note_enable[prg_prm.key][j] = !note_enable[prg_prm.key][j];
 				}
 			}
-
+		}
+		else
+		{
 			for (std::size_t j = 0, b = 0; j < T; ++j)
 			{
 				if (note_enable[prg_prm.key][j])
@@ -214,7 +210,6 @@ struct Chord_G1 : Module
 		}
 
 		// Based on what's enabled turn on leds
-
 		if (act_prm)
 		{
 			for (std::size_t j = 0; j < T; ++j)
@@ -237,40 +232,37 @@ struct Chord_G1 : Module
 		}
 
 		// Based on what's enabled generate output
-
+		std::size_t i = 0;
+		if (act_prm)
 		{
-			std::size_t i = 0;
-			if (act_prm)
+			for (std::size_t j = 0; j < T; ++j)
 			{
-				for (std::size_t j = 0; j < T; ++j)
+				if (note_enable[prg_prm.key][j])
 				{
-					if (note_enable[prg_prm.key][j])
-					{
-						outputs[omap(GATE_OUTPUT, i)].setVoltage(gate);
-						outputs[omap(VOCT_OUTPUT, i)].setVoltage(input.out + static_cast<float>(j) / 12.0f);
-						++i;
-					}
+					outputs[omap(GATE_OUTPUT, i)].setVoltage(gate);
+					outputs[omap(VOCT_OUTPUT, i)].setVoltage(input.out + static_cast<float>(j) / 12.0f);
+					++i;
 				}
 			}
-			else
+		}
+		else
+		{
+			for (std::size_t j = 0; j < T; ++j)
 			{
-				for (std::size_t j = 0; j < T; ++j)
+				if (note_enable[prg_cv.key][j])
 				{
-					if (note_enable[prg_cv.key][j])
-					{
-						outputs[omap(GATE_OUTPUT, i)].setVoltage(gate);
-						outputs[omap(VOCT_OUTPUT, i)].setVoltage(input.out + static_cast<float>(j) / 12.0f);
-						++i;
-					}
+					outputs[omap(GATE_OUTPUT, i)].setVoltage(gate);
+					outputs[omap(VOCT_OUTPUT, i)].setVoltage(input.out + static_cast<float>(j) / 12.0f);
+					++i;
 				}
 			}
+		}
 
-			while (i < N)
-			{
-				outputs[omap(GATE_OUTPUT, i)].setVoltage(0.0f);
-				outputs[omap(VOCT_OUTPUT, i)].setVoltage(0.0f);  // is this a good value?
-				++i;
-			}
+		while (i < N)
+		{
+			outputs[omap(GATE_OUTPUT, i)].setVoltage(0.0f);
+			outputs[omap(VOCT_OUTPUT, i)].setVoltage(0.0f);  // is this a good value?
+			++i;
 		}
 
 		// Write output in one go, seems to prevent flicker
