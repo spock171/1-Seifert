@@ -119,7 +119,7 @@ struct ADSR_F1 : Module
 	static constexpr std::size_t omap(std::size_t port, std::size_t bank)
 	{
 	//	return (port < ADSR::OFF_OUTPUTS) ? port : port + bank * (ADSR::NUM_OUTPUTS - ADSR::OFF_OUTPUTS);
-		return                                     port + bank *  ADSR::NUM_OUTPUTS;
+		return port + bank *  ADSR::NUM_OUTPUTS;
 	}
 
 	void process(const ProcessArgs& args) override
