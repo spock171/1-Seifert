@@ -249,7 +249,7 @@ struct Seq_G1 : Module {
 		configParam(PRG_OCTAVE_PARAM, 0.0f,         8.0f, 4.0f, "");
 		configParam(PRG_VALUE_PARAM,  0.0f,        10.0f, 0.0f, "");
 		configParam(PRG_GATE_PARAM,   0.0f,         3.0f, 0.0f, "");
-/*
+
 		for (std::size_t row = 0; row < NOB_ROWS; ++row)
 		{
 			for (std::size_t col = 0; col < NOB_COLS; ++col)
@@ -271,7 +271,7 @@ struct Seq_G1 : Module {
 				configParam(but_map(row, col), 0.0f, 1.0f, 0.0f, "");
 			}
 		}
-*/
+
 		onReset();
 	}
 
