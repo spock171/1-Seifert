@@ -14,6 +14,12 @@
   "changelogUrl": "",
   "modules": [
     {
+      "slug": "Seq-G1",
+      "name": "Seq-G1",
+      "description": "",
+      "tags": ["Sequencer"]
+    },
+    {
       "slug": "VCF-F1",
       "name": "VCF-F1",
       "description": "",

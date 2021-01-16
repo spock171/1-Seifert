@@ -32,7 +32,7 @@ extern Model* modelFade_G1;
 extern Model* modelFade_G2;
 extern Model* modelKeys_G1;
 extern Model* modelOctave_G1;
-//	extern Model* modelSeq_G1;
+extern Model* modelSeq_G1;
 //	extern Model* modelSeq_G2;
 //	extern Model* modelScope_G1;
 extern Model* modelVCA_F1;
