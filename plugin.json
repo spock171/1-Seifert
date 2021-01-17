@@ -14,8 +14,20 @@
   "changelogUrl": "",
   "modules": [
     {
+      "slug": "Scope-G1",
+      "name": "Scope-G1",
+      "description": "",
+      "tags": ["Visual"]
+    },
+    {
       "slug": "Seq-G1",
       "name": "Seq-G1",
+      "description": "",
+      "tags": ["Sequencer"]
+    },
+    {
+      "slug": "Seq-G2",
+      "name": "Seq-G2",
       "description": "",
       "tags": ["Sequencer"]
     },

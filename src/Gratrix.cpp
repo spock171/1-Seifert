@@ -18,8 +18,8 @@ void init(rack::Plugin *p)
 	p->addModel(modelKeys_G1);
 	p->addModel(modelOctave_G1);
 	p->addModel(modelSeq_G1);
-//	p->addModel(modelSeq_G2);
-//	p->addModel(modelScope_G1);
+	p->addModel(modelSeq_G2);
+	p->addModel(modelScope_G1);
 	p->addModel(modelVCA_F1);
 	p->addModel(modelVCF_F1);
 	p->addModel(modelVCO_F1);

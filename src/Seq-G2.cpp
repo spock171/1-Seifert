@@ -1,8 +1,8 @@
 //============================================================================================================
 //!
-//! \file Seq-G1.cpp
+//! \file Seq-G2.cpp
 //!
-//! \brief Seq-G1 is a thing.
+//! \brief Seq-G2 is a thing.
 //!
 //============================================================================================================
 
@@ -10,21 +10,22 @@
 
 #define PROGRAMS  12
 #define RATIO     2
-#define LCD_ROWS  4
-#define LCD_COLS  8
+#define LCD_ROWS  2
+#define LCD_COLS  16
 #define LCD_TEXT  4
 #define PRG_ROWS  1
 #define PRG_COLS  8
 #define NOB_ROWS  0
 #define NOB_COLS  LCD_COLS
-#define BUT_ROWS  4
+#define BUT_ROWS  6
 #define BUT_COLS  (NOB_COLS*RATIO)
 #define OUT_LEFT  1
 #define OUT_RIGHT 1
 
 #define GATE_STATES 4
 
-struct Seq_G1 : Module {
+
+struct Seq_G2 : Module {
 	enum ParamIds {
 		CLOCK_PARAM,
 		RUN_PARAM,
@@ -57,13 +58,19 @@ struct Seq_G1 : Module {
 		RESET_INPUT,
 		STEPS_INPUT,
 		PROG_INPUT,
-		NUM_INPUTS
+		GATE_INPUT,      // N+1
+		VOCT_INPUT,      // N+1
+		NUM_INPUTS,
+		OFF_INPUTS = GATE_INPUT
 	};
 	enum OutputIds {
 		LCD_OUTPUT,
 		NOB_OUTPUT  = LCD_OUTPUT + LCD_ROWS * (OUT_LEFT + OUT_RIGHT),
 		BUT_OUTPUT  = NOB_OUTPUT + NOB_ROWS * (OUT_LEFT + OUT_RIGHT),
-		NUM_OUTPUTS = BUT_OUTPUT + BUT_ROWS * (OUT_LEFT + OUT_RIGHT),
+		GATE_OUTPUT = BUT_OUTPUT + BUT_ROWS * (OUT_LEFT + OUT_RIGHT),  // N
+		VOCT_OUTPUT,                                                   // N
+		NUM_OUTPUTS,
+		OFF_OUTPUTS = GATE_OUTPUT
 	};
 	enum LightIds {
 		RUNNING_LIGHT,
@@ -111,6 +118,16 @@ struct Seq_G1 : Module {
 	static constexpr std::size_t nob_map(std::size_t row, std::size_t col)                  { return NOB_PARAM  +      NOB_COLS * row + col; }
 	static constexpr std::size_t but_map(std::size_t row, std::size_t col)                  { return BUT_PARAM  +      BUT_COLS * row + col; }
 	static constexpr std::size_t led_map(std::size_t row, std::size_t col, std::size_t idx) { return BUT_LIGHT  + 3 * (BUT_COLS * row + col) + idx; }
+
+	static constexpr std::size_t imap(std::size_t port, std::size_t bank)
+	{
+		return (port < OFF_INPUTS)  ? port : port + bank * (NUM_INPUTS  - OFF_INPUTS);
+	}
+
+	static constexpr std::size_t omap(std::size_t port, std::size_t bank)
+	{
+		return (port < OFF_OUTPUTS) ? port : port + bank * (NUM_OUTPUTS - OFF_OUTPUTS);
+	}
 
 
 	Decode prg_nob;
@@ -226,41 +243,40 @@ struct Seq_G1 : Module {
 	//--------------------------------------------------------------------------------------------------------
 	//! \brief Constructor.
 
-	Seq_G1() {
-		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+	Seq_G2() {
+		config(NUM_PARAMS, (GTX__N+1) * (NUM_INPUTS  - OFF_INPUTS ) + OFF_INPUTS,
+			(GTX__N  ) * (NUM_OUTPUTS - OFF_OUTPUTS) + OFF_OUTPUTS,	NUM_LIGHTS);
+
 		configParam(CLOCK_PARAM, -2.0f, 6.0f, 2.0f, "Clock tempo", " bpm", 2.f, 60.f);
-		configParam(RUN_PARAM, 0.0f, 1.0f, 0.0f, "");
-		configParam(RESET_PARAM, 0.0f, 1.0f, 0.0f, "");
-		configParam(PROG_PARAM, 0.0f, 11.0f, 0.0f, "");
-		configParam(PLAY_PARAM, 0.0f, 1.0f, 1.0f, "");
-		configParam(EDIT_PARAM, 0.0f, 1.0f, 1.0f, "");
-		configParam(COPY_PARAM, 0.0f, 1.0f, 0.0f, "");
-		configParam(PASTE_PARAM, 0.0f, 1.0f, 0.0f, "");
-		configParam(STEPS_PARAM, 1.0f, NOB_COLS, NOB_COLS, "Steps");
-		configParam(CLEAR_PARAM, 0.0f, 1.0f, 0.0f, "");
-		configParam(RANDOM_PARAM, 0.0f, 1.0f, 0.0f, "");
-		configParam(SPAN_R_PARAM, 1.0f, 8.0f, 1.0f, "");
-		configParam(SPAN_C_PARAM, 1.0f, 8.0f, 1.0f, "");
-		configParam(PRG_ROW_PARAM,    0.0f, LCD_ROWS - 1, 0.0f, "");
-		configParam(PRG_COL_PARAM,    0.0f, LCD_COLS - 1, 0.0f, "");
-		configParam(PRG_SPAN_PARAM,   1.0f, LCD_COLS    , 1.0f, "");
-		configParam(PRG_STRIDE_PARAM, 1.0f, LCD_COLS - 1, 1.0f, "");
-		configParam(PRG_NOTE_PARAM,   0.0f,        11.0f, 0.0f, "");
-		configParam(PRG_OCTAVE_PARAM, 0.0f,         8.0f, 4.0f, "");
-		configParam(PRG_VALUE_PARAM,  0.0f,        10.0f, 0.0f, "");
-		configParam(PRG_GATE_PARAM,   0.0f,         3.0f, 0.0f, "");
+		configParam(RUN_PARAM, 0.0f, 1.0f, 0.0f);
+		configParam(RESET_PARAM, 0.0f, 1.0f, 0.0f);
+		configParam(PROG_PARAM, 0.0f, 11.0f, 0.0f);
+		configParam(PLAY_PARAM, 0.0f, 1.0f, 1.0f);
+		configParam(EDIT_PARAM, 0.0f, 1.0f, 1.0f);
+		configParam(COPY_PARAM, 0.0f, 1.0f, 0.0f);
+		configParam(PASTE_PARAM, 0.0f, 1.0f, 0.0f);
+		configParam(STEPS_PARAM, 1.0f, NOB_COLS, NOB_COLS);
+		configParam(CLEAR_PARAM, 0.0f, 1.0f, 0.0f);
+		configParam(RANDOM_PARAM, 0.0f, 1.0f, 0.0f);
+		configParam(SPAN_R_PARAM, 1.0f, 8.0f, 1.0f);
+		configParam(SPAN_C_PARAM, 1.0f, 8.0f, 1.0f);
+		configParam(PRG_ROW_PARAM,    0.0f, LCD_ROWS - 1, 0.0f);
+		configParam(PRG_COL_PARAM,    0.0f, LCD_COLS - 1, 0.0f);
+		configParam(PRG_SPAN_PARAM,   1.0f, LCD_COLS    , 1.0f);
+		configParam(PRG_STRIDE_PARAM, 1.0f, LCD_COLS - 1, 1.0f);
+		configParam(PRG_NOTE_PARAM,   0.0f,        11.0f, 0.0f);
+		configParam(PRG_OCTAVE_PARAM, 0.0f,         8.0f, 4.0f);
+		configParam(PRG_VALUE_PARAM,  0.0f,        10.0f, 0.0f);
+		configParam(PRG_GATE_PARAM,   0.0f,         3.0f, 0.0f);
 
 		for (std::size_t row = 0; row < NOB_ROWS; ++row)
 		{
 			for (std::size_t col = 0; col < NOB_COLS; ++col)
 			{
-				if (Seq_G1::is_nob_snap(row))
+				if (Seq_G2::is_nob_snap(row))
 				{
-					configParam(nob_map(row, col), 0.0f, 12.0f, 0.0f, "");
-				}
-				else
-				{
-					configParam(nob_map(row, col), 0.0f, 10.0f, 0.0f, "");
+					configParam(nob_map(row, col), 0.0f, 12.0f, 0.0f);
+					configParam(nob_map(row, col), 0.0f, 10.0f, 0.0f);
 				}
 			}
 		}
@@ -268,10 +284,9 @@ struct Seq_G1 : Module {
 		{
 			for (std::size_t col = 0; col < BUT_COLS; ++col)
 			{
-				configParam(but_map(row, col), 0.0f, 1.0f, 0.0f, "");
+				configParam(but_map(row, col), 0.0f, 1.0f, 0.0f);
 			}
 		}
-
 		onReset();
 	}
 
@@ -536,6 +551,21 @@ struct Seq_G1 : Module {
 		{
 			if (OUT_LEFT || OUT_RIGHT) outputs[but_val_map(row, 0)].setVoltage(but_val[row] ? 10.0f : 0.0f);
 			if (OUT_LEFT && OUT_RIGHT) outputs[but_val_map(row, 1)].setVoltage(but_val[row] ? 10.0f : 0.0f);
+		}
+		#endif
+
+		// Detemine poly outputs
+
+		#if BUT_ROWS
+		for (std::size_t i=0; i<GTX__N && i<BUT_ROWS; ++i)
+		{
+			// Pass V/OCT trough (for now)
+			outputs[omap(VOCT_OUTPUT, i)].setVoltage(inputs[imap(VOCT_INPUT, i)].isConnected() ? inputs[imap(VOCT_INPUT, i)].getVoltage() : inputs[imap(VOCT_INPUT, GTX__N)].getVoltage());
+
+			// Generate gate out
+			float gate_in  = inputs[imap(GATE_INPUT, i)].isConnected() ? inputs[imap(GATE_INPUT, i)].getVoltage() : inputs[imap(GATE_INPUT, GTX__N)].getVoltage();
+
+			outputs[omap(GATE_OUTPUT, i)].setVoltage((but_val[i] && gate_in >= 1.0f) ? 10.0f : 0.0f);
 		}
 		#endif
 
@@ -876,13 +906,14 @@ struct Seq_G1 : Module {
 	}
 };
 
+
 #if LCD_ROWS
 //============================================================================================================
 //! \brief Display.
 
-struct Display_Seq_G1 : TransparentWidget
+struct Display_Seq_G2 : TransparentWidget
 {
-	Seq_G1 *module;
+	Seq_G2 *module;
 	int frame = 0;
 	std::shared_ptr<Font> font;
 
@@ -894,7 +925,7 @@ struct Display_Seq_G1 : TransparentWidget
 	//--------------------------------------------------------------------------------------------------------
 	//! \brief Constructor.
 
-	Display_Seq_G1(Seq_G1 *module_, const Rect &box_)
+	Display_Seq_G2(Seq_G2 *module_, const Rect &box_)
 	:
 		module(module_)
 	{
@@ -942,10 +973,8 @@ struct Display_Seq_G1 : TransparentWidget
 						case 'p' : nvgFillColor(vg, nvgRGBA(0xe1, 0x02, 0x78, 0xc0)); break;
 						default  : nvgFillColor(vg, nvgRGBA(0x28, 0xb0, 0xf3, 0xc0)); break;
 					}
-
 					old = text[row][col][0];
 				}
-
 				nvgText(vg, tx[col], ty[row], text[row][col] + 1, NULL);
 			}
 		}
@@ -1008,18 +1037,18 @@ struct Display_Seq_G1 : TransparentWidget
 				}
 			}
 		}
-
 		draw_main(args.vg);
 	}
 };
 #endif
+
 
 //============================================================================================================
 //! \brief The widget.
 
 struct GtxWidget : ModuleWidget
 {
-	GtxWidget(Seq_G1 *module)
+	GtxWidget(Seq_G2 *module)
 	{
 		setModule(module);
 		box.size = Vec((OUT_LEFT+LCD_COLS+OUT_RIGHT)*3*15, 380);
@@ -1028,7 +1057,7 @@ struct GtxWidget : ModuleWidget
 		float grid_right = 3*15*OUT_RIGHT;
 		float grid_size  = box.size.x - grid_left - grid_right;
 
-		auto display_Seq_G1 = Rect(Vec(grid_left, 35), Vec(grid_size, (GControls::rad_but()+1.5) * 2 * LCD_ROWS));
+		auto display_Seq_G2 = Rect(Vec(grid_left, 35), Vec(grid_size, (GControls::rad_but()+1.5) * 2 * LCD_ROWS));
 
 		#if LCD_ROWS
 		float g_lcdX[LCD_COLS] = {};
@@ -1064,7 +1093,7 @@ struct GtxWidget : ModuleWidget
 		for (std::size_t i = 0; i < 10; i++)
 		{
 			float x = 5*6*15 / static_cast<double>(10);
-			portX[i] = x * (i + 0.5);
+			portX[i] = 2*6*15 + x * (i + 0.5);
 		}
 		float dX = 0.5*(portX[1]-portX[0]);
 
@@ -1121,13 +1150,13 @@ struct GtxWidget : ModuleWidget
 
 		#if GTX__SAVE_SVG
 		{
-			PanelGen pg(asset::plugin(pluginInstance, "build/res/Seq-G1.svg"), box.size, "SEQ-G1");
+			PanelGen pg(asset::plugin(pluginInstance, "build/res/Seq-G2.svg"), box.size, "SEQ-G2");
 
-			pg.rect(display_Seq_G1.pos, display_Seq_G1.size, "fill:#222222;stroke:none");
+			pg.rect(display_Seq_G2.pos, display_Seq_G2.size, "fill:#222222;stroke:none");
 
 			{
-				float y0 = display_Seq_G1.pos.y - 2;
-				float y1 = display_Seq_G1.pos.y + display_Seq_G1.size.y + 3;
+				float y0 = display_Seq_G2.pos.y - 2;
+				float y1 = display_Seq_G2.pos.y + display_Seq_G2.size.y + 3;
 
 				pg.line(Vec(g_lcdX[0]-dX, y0), Vec(g_lcdX[0]-dX, y1), "fill:none;stroke:#CEE1FD;stroke-width:3");
 				for (std::size_t i=3; i<LCD_COLS; i+=4)
@@ -1139,8 +1168,8 @@ struct GtxWidget : ModuleWidget
 			for (std::size_t i=0; i<LCD_COLS-1; i++)
 			{
 				double x  = 0.5 * (g_lcdX[i] + g_lcdX[i+1]);
-				double y0 = gridY[LCD_ROWS + PRG_ROWS                          ] - rad_but();
-				double y1 = gridY[LCD_ROWS + PRG_ROWS + NOB_ROWS + BUT_ROWS - 1] + rad_but();
+				double y0 = gridY[LCD_ROWS + PRG_ROWS                          ] - GControls::rad_but();
+				double y1 = gridY[LCD_ROWS + PRG_ROWS + NOB_ROWS + BUT_ROWS - 1] + GControls::rad_but();
 
 				if (i % 4 == 3)
 				{
@@ -1152,8 +1181,10 @@ struct GtxWidget : ModuleWidget
 				}
 			}
 
+			pg.line(Vec(portX[0]-dX, portY[0]-29), Vec(portX[0]-dX, portY[1]+16), "fill:none;stroke:#7092BE;stroke-width:2");
 			pg.line(Vec(portX[2]+dX, portY[0]-29), Vec(portX[2]+dX, portY[1]+16), "fill:none;stroke:#7092BE;stroke-width:2");
 			pg.line(Vec(portX[6]+dX, portY[0]-29), Vec(portX[6]+dX, portY[1]+16), "fill:none;stroke:#7092BE;stroke-width:2");
+			pg.line(Vec(portX[9]+dX, portY[0]-29), Vec(portX[9]+dX, portY[1]+16), "fill:none;stroke:#7092BE;stroke-width:2");
 
 			pg.line(Vec(portX[0],    portY[0]), Vec(portX[0],    portY[1]), "fill:none;stroke:#7092BE;stroke-width:1");
 			pg.line(Vec(portX[2],    portY[0]), Vec(portX[2],    portY[1]), "fill:none;stroke:#7092BE;stroke-width:1");
@@ -1164,14 +1195,14 @@ struct GtxWidget : ModuleWidget
 			pg.line(Vec(portX[3]+dX, portY[3]), Vec(portX[3]+dX, portY[2]), "fill:none;stroke:#7092BE;stroke-width:1");
 			pg.line(Vec(portX[3],    portY[3]), Vec(portX[3]+dX, portY[3]), "fill:none;stroke:#7092BE;stroke-width:1");
 
-			pg.nob_sml_raw(g_lcdX[0], gridY[LCD_ROWS], "ROW");
-			pg.nob_sml_raw(g_lcdX[1], gridY[LCD_ROWS], "COL");
-			pg.nob_sml_raw(g_lcdX[2], gridY[LCD_ROWS], "SPAN");
-			pg.nob_sml_raw(g_lcdX[3], gridY[LCD_ROWS], "STRIDE");
-			pg.nob_sml_raw(g_lcdX[4], gridY[LCD_ROWS], "NOTE");
-			pg.nob_sml_raw(g_lcdX[5], gridY[LCD_ROWS], "OCT");
-			pg.nob_sml_raw(g_lcdX[6], gridY[LCD_ROWS], "VALUE");
-			pg.nob_sml_raw(g_lcdX[7], gridY[LCD_ROWS], "---");
+			pg.nob_sml_raw(g_lcdX[ 4], gridY[LCD_ROWS], "ROW");
+			pg.nob_sml_raw(g_lcdX[ 5], gridY[LCD_ROWS], "COL");
+			pg.nob_sml_raw(g_lcdX[ 6], gridY[LCD_ROWS], "SPAN");
+			pg.nob_sml_raw(g_lcdX[ 7], gridY[LCD_ROWS], "STRIDE");
+			pg.nob_sml_raw(g_lcdX[ 8], gridY[LCD_ROWS], "NOTE");
+			pg.nob_sml_raw(g_lcdX[ 9], gridY[LCD_ROWS], "OCT");
+			pg.nob_sml_raw(g_lcdX[10], gridY[LCD_ROWS], "VALUE");
+			pg.nob_sml_raw(g_lcdX[11], gridY[LCD_ROWS], "---");
 
 			pg.nob_sml_raw(portX[0], portY[0], "CLOCK");
 			pg.nob_sml_raw(portX[1], portY[0], "RUN");        pg.nob_sml_raw(portX[1], portY[1], "EXT CLK");
@@ -1185,61 +1216,66 @@ struct GtxWidget : ModuleWidget
 			pg.nob_sml_raw(portX[7], portY[0], "STEPS");
 			pg.nob_sml_raw(portX[8], portY[0], "CLEAR");      pg.nob_sml_raw(portX[8], portY[1], "RAND");
 			pg.nob_sml_raw(portX[9], portY[0], "ROWS");       pg.nob_sml_raw(portX[9], portY[1], "COLS");
+
+			pg.bus_in (0, 2, "GATE");
+			pg.bus_in (1, 2, "V/OCT");
+			pg.bus_out(8, 2, "GATE");
+			pg.bus_out(7, 2, "V/OCT");
 		}
 		#endif
 
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Seq-G1.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Seq-G2.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(15, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x-30, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(15, 365)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x-30, 365)));
 
-		addChild(new Display_Seq_G1(module, display_Seq_G1));
+		addChild(new Display_Seq_G2(module, display_Seq_G2));
 
-		addParam(createParamCentered<GControls::KnobFreeSml>(Vec(portX[0], portY[0]), module, Seq_G1::CLOCK_PARAM));
-		addParam(createParam<LEDButton>(GControls::but(portX[1], portY[0]), module, Seq_G1::RUN_PARAM));
-		addChild(createLight<MediumLight<GreenLight>>(GControls::l_m(portX[1], portY[0]), module, Seq_G1::RUNNING_LIGHT));
-		addParam(createParam<LEDButton>(GControls::but(portX[2], portY[0]), module, Seq_G1::RESET_PARAM));
-		addChild(createLight<MediumLight<GreenLight>>(GControls::l_m(portX[2], portY[0]), module, Seq_G1::RESET_LIGHT));
+		addParam(createParamCentered<GControls::KnobFreeSml>(Vec(portX[0], portY[0]), module, Seq_G2::CLOCK_PARAM));
+		addParam(createParam<LEDButton>(GControls::but(portX[1], portY[0]), module, Seq_G2::RUN_PARAM));
+		addChild(createLight<MediumLight<GreenLight>>(GControls::l_m(portX[1], portY[0]), module, Seq_G2::RUNNING_LIGHT));
+		addParam(createParam<LEDButton>(GControls::but(portX[2], portY[0]), module, Seq_G2::RESET_PARAM));
+		addChild(createLight<MediumLight<GreenLight>>(GControls::l_m(portX[2], portY[0]), module, Seq_G2::RESET_LIGHT));
 
-		addParam(createParamCentered<GControls::KnobSnapSml>(Vec(portX[3], portY[0]), module, Seq_G1::PROG_PARAM));
-		addParam(createParam<CKSS>(GControls::tog(portX[4], portY[2]), module, Seq_G1::PLAY_PARAM));
-		addParam(createParam<CKSS>(GControls::tog(portX[5], portY[2]), module, Seq_G1::EDIT_PARAM));
+		addParam(createParamCentered<GControls::KnobSnapSml>(Vec(portX[3], portY[0]), module, Seq_G2::PROG_PARAM));
+		addParam(createParam<CKSS>(GControls::tog(portX[4], portY[2]), module, Seq_G2::PLAY_PARAM));
+		addParam(createParam<CKSS>(GControls::tog(portX[5], portY[2]), module, Seq_G2::EDIT_PARAM));
 
-		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX - 30, portY[1] + 5 + 1), module, Seq_G1::PROG_LIGHT +  0*2));  // C
-		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX - 25, portY[1] - 5 + 1), module, Seq_G1::PROG_LIGHT +  1*2));  // C#
-		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX - 20, portY[1] + 5 + 1), module, Seq_G1::PROG_LIGHT +  2*2));  // D
-		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX - 15, portY[1] - 5 + 1), module, Seq_G1::PROG_LIGHT +  3*2));  // Eb
-		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX - 10, portY[1] + 5 + 1), module, Seq_G1::PROG_LIGHT +  4*2));  // E
-		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX     , portY[1] + 5 + 1), module, Seq_G1::PROG_LIGHT +  5*2));  // F
-		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX +  5, portY[1] - 5 + 1), module, Seq_G1::PROG_LIGHT +  6*2));  // Fs
-		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX + 10, portY[1] + 5 + 1), module, Seq_G1::PROG_LIGHT +  7*2));  // G
-		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX + 15, portY[1] - 5 + 1), module, Seq_G1::PROG_LIGHT +  8*2));  // Ab
-		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX + 20, portY[1] + 5 + 1), module, Seq_G1::PROG_LIGHT +  9*2));  // A
-		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX + 25, portY[1] - 5 + 1), module, Seq_G1::PROG_LIGHT + 10*2));  // Bb
-		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX + 30, portY[1] + 5 + 1), module, Seq_G1::PROG_LIGHT + 11*2));  // B
+		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX - 30, portY[1] + 5 + 1), module, Seq_G2::PROG_LIGHT +  0*2));  // C
+		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX - 25, portY[1] - 5 + 1), module, Seq_G2::PROG_LIGHT +  1*2));  // C#
+		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX - 20, portY[1] + 5 + 1), module, Seq_G2::PROG_LIGHT +  2*2));  // D
+		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX - 15, portY[1] - 5 + 1), module, Seq_G2::PROG_LIGHT +  3*2));  // Eb
+		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX - 10, portY[1] + 5 + 1), module, Seq_G2::PROG_LIGHT +  4*2));  // E
+		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX     , portY[1] + 5 + 1), module, Seq_G2::PROG_LIGHT +  5*2));  // F
+		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX +  5, portY[1] - 5 + 1), module, Seq_G2::PROG_LIGHT +  6*2));  // Fs
+		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX + 10, portY[1] + 5 + 1), module, Seq_G2::PROG_LIGHT +  7*2));  // G
+		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX + 15, portY[1] - 5 + 1), module, Seq_G2::PROG_LIGHT +  8*2));  // Ab
+		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX + 20, portY[1] + 5 + 1), module, Seq_G2::PROG_LIGHT +  9*2));  // A
+		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX + 25, portY[1] - 5 + 1), module, Seq_G2::PROG_LIGHT + 10*2));  // Bb
+		addChild(createLight<SmallLight<GreenRedLight>>(GControls::l_s(portX[4] + dX + 30, portY[1] + 5 + 1), module, Seq_G2::PROG_LIGHT + 11*2));  // B
 
-		addParam(createParam<LEDButton>(GControls::but(portX[6], portY[0]), module, Seq_G1::COPY_PARAM));
-		addChild(createLight<MediumLight<GreenLight>>(GControls::l_m(portX[6], portY[0]), module, Seq_G1::COPY_LIGHT));
-		addParam(createParam<LEDButton>(GControls::but(portX[6], portY[1]), module, Seq_G1::PASTE_PARAM));
-		addChild(createLight<MediumLight<GreenLight>>(GControls::l_m(portX[6], portY[1]), module, Seq_G1::PASTE_LIGHT));
+		addParam(createParam<LEDButton>(GControls::but(portX[6], portY[0]), module, Seq_G2::COPY_PARAM));
+		addChild(createLight<MediumLight<GreenLight>>(GControls::l_m(portX[6], portY[0]), module, Seq_G2::COPY_LIGHT));
+		addParam(createParam<LEDButton>(GControls::but(portX[6], portY[1]), module, Seq_G2::PASTE_PARAM));
+		addChild(createLight<MediumLight<GreenLight>>(GControls::l_m(portX[6], portY[1]), module, Seq_G2::PASTE_LIGHT));
 
-		addParam(createParamCentered<GControls::KnobSnapSml>(Vec(portX[7], portY[0]), module, Seq_G1::STEPS_PARAM));
+		addParam(createParamCentered<GControls::KnobSnapSml>(Vec(portX[7], portY[0]), module, Seq_G2::STEPS_PARAM));
 
-		addParam(createParam<LEDButton>(GControls::but(portX[8], portY[0]), module, Seq_G1::CLEAR_PARAM));
-		addChild(createLight<MediumLight<GreenLight>>(GControls::l_m(portX[8], portY[0]), module, Seq_G1::CLEAR_LIGHT));
-		addParam(createParam<LEDButton>(GControls::but(portX[8], portY[1]), module, Seq_G1::RANDOM_PARAM));
-		addChild(createLight<MediumLight<GreenLight>>(GControls::l_m(portX[8], portY[1]), module, Seq_G1::RANDOM_LIGHT));
+		addParam(createParam<LEDButton>(GControls::but(portX[8], portY[0]), module, Seq_G2::CLEAR_PARAM));
+		addChild(createLight<MediumLight<GreenLight>>(GControls::l_m(portX[8], portY[0]), module, Seq_G2::CLEAR_LIGHT));
+		addParam(createParam<LEDButton>(GControls::but(portX[8], portY[1]), module, Seq_G2::RANDOM_PARAM));
+		addChild(createLight<MediumLight<GreenLight>>(GControls::l_m(portX[8], portY[1]), module, Seq_G2::RANDOM_LIGHT));
 
-		addParam(createParamCentered<GControls::KnobSnapSml>(Vec(portX[9], portY[0]), module, Seq_G1::SPAN_R_PARAM));
-		addParam(createParamCentered<GControls::KnobSnapSml>(Vec(portX[9], portY[1]), module, Seq_G1::SPAN_C_PARAM));
+		addParam(createParamCentered<GControls::KnobSnapSml>(Vec(portX[9], portY[0]), module, Seq_G2::SPAN_R_PARAM));
+		addParam(createParamCentered<GControls::KnobSnapSml>(Vec(portX[9], portY[1]), module, Seq_G2::SPAN_C_PARAM));
 
-		addInput(createInputCentered<GControls::PortInMed>(Vec(portX[0], portY[1]), module, Seq_G1::CLOCK_INPUT));
-		addInput(createInputCentered<GControls::PortInMed>(Vec(portX[1], portY[1]), module, Seq_G1::EXT_CLOCK_INPUT));
-		addInput(createInputCentered<GControls::PortInMed>(Vec(portX[2], portY[1]), module, Seq_G1::RESET_INPUT));
-		addInput(createInputCentered<GControls::PortInMed>(Vec(portX[3], portY[1]), module, Seq_G1::PROG_INPUT));
-		addInput(createInputCentered<GControls::PortInMed>(Vec(portX[7], portY[1]), module, Seq_G1::STEPS_INPUT));
+		addInput(createInputCentered<GControls::PortInMed>(Vec(portX[0], portY[1]), module, Seq_G2::CLOCK_INPUT));
+		addInput(createInputCentered<GControls::PortInMed>(Vec(portX[1], portY[1]), module, Seq_G2::EXT_CLOCK_INPUT));
+		addInput(createInputCentered<GControls::PortInMed>(Vec(portX[2], portY[1]), module, Seq_G2::RESET_INPUT));
+		addInput(createInputCentered<GControls::PortInMed>(Vec(portX[3], portY[1]), module, Seq_G2::PROG_INPUT));
+		addInput(createInputCentered<GControls::PortInMed>(Vec(portX[7], portY[1]), module, Seq_G2::STEPS_INPUT));
 
 		{
 			std::size_t j = 0;
@@ -1247,8 +1283,8 @@ struct GtxWidget : ModuleWidget
 			#if LCD_ROWS
 			for (std::size_t row = 0; row < LCD_ROWS; ++row, ++j)
 			{
-				if (OUT_LEFT ) addOutput(createOutputCentered<GControls::PortOutSml>(Vec(gridXl, gridY[j]), module, Seq_G1::lcd_val_map(row, 0)));
-				if (OUT_RIGHT) addOutput(createOutputCentered<GControls::PortOutSml>(Vec(gridXr, gridY[j]), module, Seq_G1::lcd_val_map(row, 1)));
+				if (OUT_LEFT ) addOutput(createOutputCentered<GControls::PortOutSml>(Vec(gridXl, gridY[j]), module, Seq_G2::lcd_val_map(row, 0)));
+				if (OUT_RIGHT) addOutput(createOutputCentered<GControls::PortOutSml>(Vec(gridXr, gridY[j]), module, Seq_G2::lcd_val_map(row, 1)));
 			}
 			#endif
 
@@ -1259,16 +1295,16 @@ struct GtxWidget : ModuleWidget
 			#if NOB_ROWS
 			for (std::size_t row = 0; row < NOB_ROWS; ++row, ++j)
 			{
-				if (OUT_LEFT ) addOutput(createOutputCentered<GControls::PortOutSml>(Vec(gridXl, gridY[j]), module, Seq_G1::nob_val_map(row, 0)));
-				if (OUT_RIGHT) addOutput(createOutputCentered<GControls::PortOutSml>(Vec(gridXr, gridY[j]), module, Seq_G1::nob_val_map(row, 1)));
+				if (OUT_LEFT ) addOutput(createOutputCentered<GControls::PortOutSml>(Vec(gridXl, gridY[j]), module, Seq_G2::nob_val_map(row, 0)));
+				if (OUT_RIGHT) addOutput(createOutputCentered<GControls::PortOutSml>(Vec(gridXr, gridY[j]), module, Seq_G2::nob_val_map(row, 1)));
 			}
 			#endif
 
 			#if BUT_ROWS
 			for (std::size_t row = 0; row < BUT_ROWS; ++row, ++j)
 			{
-				if (OUT_LEFT ) addOutput(createOutputCentered<GControls::PortOutSml>(Vec(gridXl, gridY[j]), module, Seq_G1::but_val_map(row, 0)));
-				if (OUT_RIGHT) addOutput(createOutputCentered<GControls::PortOutSml>(Vec(gridXr, gridY[j]), module, Seq_G1::but_val_map(row, 1)));
+				if (OUT_LEFT ) addOutput(createOutputCentered<GControls::PortOutSml>(Vec(gridXl, gridY[j]), module, Seq_G2::but_val_map(row, 0)));
+				if (OUT_RIGHT) addOutput(createOutputCentered<GControls::PortOutSml>(Vec(gridXr, gridY[j]), module, Seq_G2::but_val_map(row, 1)));
 			}
 			#endif
 		}
@@ -1285,14 +1321,14 @@ struct GtxWidget : ModuleWidget
 
 			#if PRG_ROWS
 			{
-				addParam(createParamCentered<GControls::KnobSnapSml>(Vec(g_lcdX[0], gridY[j]), module, Seq_G1::PRG_ROW_PARAM));
-				addParam(createParamCentered<GControls::KnobSnapSml>(Vec(g_lcdX[1], gridY[j]), module, Seq_G1::PRG_COL_PARAM));
-				addParam(createParamCentered<GControls::KnobSnapSml>(Vec(g_lcdX[2], gridY[j]), module, Seq_G1::PRG_SPAN_PARAM));
-				addParam(createParamCentered<GControls::KnobSnapSml>(Vec(g_lcdX[3], gridY[j]), module, Seq_G1::PRG_STRIDE_PARAM));
-				addParam(createParamCentered<GControls::KnobSnapSml>(Vec(g_lcdX[4], gridY[j]), module, Seq_G1::PRG_NOTE_PARAM));
-				addParam(createParamCentered<GControls::KnobSnapSml>(Vec(g_lcdX[5], gridY[j]), module, Seq_G1::PRG_OCTAVE_PARAM));
-				addParam(createParamCentered<GControls::KnobFreeSml>(Vec(g_lcdX[6], gridY[j]), module, Seq_G1::PRG_VALUE_PARAM));
-				addParam(createParamCentered<GControls::KnobSnapSml>(Vec(g_lcdX[7], gridY[j]), module, Seq_G1::PRG_GATE_PARAM));
+				addParam(createParamCentered<GControls::KnobSnapSml>(Vec(g_lcdX[ 4], gridY[j]), module, Seq_G2::PRG_ROW_PARAM));
+				addParam(createParamCentered<GControls::KnobSnapSml>(Vec(g_lcdX[ 5], gridY[j]), module, Seq_G2::PRG_COL_PARAM));
+				addParam(createParamCentered<GControls::KnobSnapSml>(Vec(g_lcdX[ 6], gridY[j]), module, Seq_G2::PRG_SPAN_PARAM));
+				addParam(createParamCentered<GControls::KnobSnapSml>(Vec(g_lcdX[ 7], gridY[j]), module, Seq_G2::PRG_STRIDE_PARAM));
+				addParam(createParamCentered<GControls::KnobSnapSml>(Vec(g_lcdX[ 8], gridY[j]), module, Seq_G2::PRG_NOTE_PARAM));
+				addParam(createParamCentered<GControls::KnobSnapSml>(Vec(g_lcdX[ 9], gridY[j]), module, Seq_G2::PRG_OCTAVE_PARAM));
+				addParam(createParamCentered<GControls::KnobFreeSml>(Vec(g_lcdX[10], gridY[j]), module, Seq_G2::PRG_VALUE_PARAM));
+				addParam(createParamCentered<GControls::KnobSnapSml>(Vec(g_lcdX[11], gridY[j]), module, Seq_G2::PRG_GATE_PARAM));
 				++j;
 			}
 			#endif
@@ -1302,13 +1338,13 @@ struct GtxWidget : ModuleWidget
 			{
 				for (std::size_t col = 0; col < NOB_COLS; ++col)
 				{
-					if (Seq_G1::is_nob_snap(row))
+					if (Seq_G2::is_nob_snap(row))
 					{
-						addParam(createParamCentered<GControls::KnobSnapSml>(Vec(g_nobX[col], gridY[j]), module, Seq_G1::nob_map(row, col)));
+						addParam(createParamCentered<GControls::KnobSnapSml>(Vec(g_nobX[col], gridY[j]), module, Seq_G2::nob_map(row, col)));
 					}
 					else
 					{
-						addParam(createParamCentered<GControls::KnobFreeSml>(Vec(g_nobX[col], gridY[j]), module, Seq_G1::nob_map(row, col)));
+						addParam(createParamCentered<GControls::KnobFreeSml>(Vec(g_nobX[col], gridY[j]), module, Seq_G2::nob_map(row, col)));
 					}
 				}
 			}
@@ -1319,14 +1355,26 @@ struct GtxWidget : ModuleWidget
 			{
 				for (std::size_t col = 0; col < BUT_COLS; ++col)
 				{
-					addParam(createParam<LEDButton>(GControls::but(g_butX[col], gridY[j]), module, Seq_G1::but_map(row, col)));
-					addChild(createLight<MediumLight<RedGreenBlueLight>>(GControls::l_m(g_butX[col], gridY[j]), module, Seq_G1::led_map(row, col, 0)));
+					addParam(createParam<LEDButton>(GControls::but(g_butX[col], gridY[j]), module, Seq_G2::but_map(row, col)));
+					addChild(createLight<MediumLight<RedGreenBlueLight>>(GControls::l_m(g_butX[col], gridY[j]), module, Seq_G2::led_map(row, col, 0)));
 				}
 			}
 			#endif
 		}
+
+		for (std::size_t i=0; i<GTX__N; ++i)
+		{
+			addInput(createInputCentered<GControls::PortInMed>(Vec(GControls::px(0, i), GControls::py(2, i)), module, Seq_G2::imap(Seq_G2::GATE_INPUT, i)));
+			addInput(createInputCentered<GControls::PortInMed>(Vec(GControls::px(1, i), GControls::py(2, i)), module, Seq_G2::imap(Seq_G2::VOCT_INPUT, i)));
+
+			addOutput(createOutputCentered<GControls::PortOutMed>(Vec(GControls::px(8, i), GControls::py(2, i)), module, Seq_G2::omap(Seq_G2::GATE_OUTPUT, i)));
+			addOutput(createOutputCentered<GControls::PortOutMed>(Vec(GControls::px(7, i), GControls::py(2, i)), module, Seq_G2::omap(Seq_G2::VOCT_OUTPUT, i)));
+		}
+
+		addInput(createInputCentered<GControls::PortInMed>(Vec(GControls::gx(0), GControls::gy(2)), module, Seq_G2::imap(Seq_G2::GATE_INPUT, GTX__N)));
+		addInput(createInputCentered<GControls::PortInMed>(Vec(GControls::gx(1), GControls::gy(2)), module, Seq_G2::imap(Seq_G2::VOCT_INPUT, GTX__N)));
 	}
 };
 
 
-Model *modelSeq_G1 = createModel<Seq_G1, GtxWidget>("Seq-G1");
+Model *modelSeq_G2 = createModel<Seq_G2, GtxWidget>("Seq-G2");
