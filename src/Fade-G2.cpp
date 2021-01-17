@@ -56,6 +56,8 @@ struct Fade_G2 : Module
 		(GTX__N+1) * (NUM_INPUTS  - OFF_INPUTS ) + OFF_INPUTS,
 		(GTX__N  ) * (NUM_OUTPUTS - OFF_OUTPUTS) + OFF_OUTPUTS,
 		NUM_LIGHTS);
+		configParam(BLENDAB_PARAM, 0.0f, 1.0f, 0.0f, "Fade A-B");
+		configParam(BLEND12_PARAM, 0.0f, 1.0f, 0.0f, "Fade 1-2");
 		lights[IN_1AP_GREEN].value = 0.0f;  lights[IN_1AP_RED].value = 1.0f;
 		lights[IN_1AQ_GREEN].value = 0.0f;  lights[IN_1AQ_RED].value = 1.0f;
 		lights[IN_1BP_GREEN].value = 1.0f;  lights[IN_1BP_RED].value = 0.0f;
@@ -146,8 +148,8 @@ struct GtxWidget : ModuleWidget
 		addChild(createWidget<ScrewSilver>(Vec(15, 365)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x-30, 365)));
 
-		addParam(createParamCentered<GControls::KnobFreeHug>(Vec(GControls::fx(1), GControls::fy(0)), module, Fade_G2::BLENDAB_PARAM));
-		addParam(createParamCentered<GControls::KnobFreeHug>(Vec(GControls::fx(2), GControls::fy(0)), module, Fade_G2::BLEND12_PARAM));
+		addParam(createParamCentered<GControls::KnobFreeHug>(Vec(GControls::fx(1), GControls::fy(0)), module, Fade_G2::BLEND12_PARAM));
+		addParam(createParamCentered<GControls::KnobFreeHug>(Vec(GControls::fx(2), GControls::fy(0)), module, Fade_G2::BLENDAB_PARAM));
 
 		addInput(createInputCentered<GControls::PortInMed>(Vec(GControls::fx(0), GControls::fy(-0.28)), module, Fade_G2::BLENDAB_INPUT));
 		addInput(createInputCentered<GControls::PortInMed>(Vec(GControls::fx(0), GControls::fy(+0.28)), module, Fade_G2::BLEND12_INPUT));

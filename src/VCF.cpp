@@ -155,11 +155,11 @@ struct VCFBank : Module
 
 	VCFBank() {
 		config(VCF::NUM_PARAMS, (GTX__N+1) * VCF::NUM_INPUTS, GTX__N * VCF::NUM_OUTPUTS);
-		configParam(VCF::FREQ_PARAM, 0.0f, 1.0f, 0.5f, "");
-		configParam(VCF::FINE_PARAM, 0.0f, 1.0f, 0.5f, "");
-		configParam(VCF::RES_PARAM, 0.0f, 1.0f, 0.0f, "");
-		configParam(VCF::FREQ_CV_PARAM, -1.0f, 1.0f, 0.0f, "");
-		configParam(VCF::DRIVE_PARAM, 0.0f, 1.0f, 0.0f,"");
+		configParam(VCF::FREQ_PARAM, 0.0f, 1.0f, 0.5f,  "Frequency", " Hz", std::pow(2, 10.f), dsp::FREQ_C4 / std::pow(2, 5.f));
+		configParam(VCF::FINE_PARAM, 0.0f, 1.0f, 0.5f, "Fine frequency");
+		configParam(VCF::RES_PARAM, 0.0f, 1.0f, 0.0f, "Resonance", "%", 0.f, 100.f);
+		configParam(VCF::FREQ_CV_PARAM, -1.0f, 1.0f, 0.0f,  "Frequency modulation", "%", 0.f, 100.f);
+		configParam(VCF::DRIVE_PARAM, 0.0f, 1.0f, 0.0f, "Drive", "", 0, 11);
 	}
 
 	static std::size_t imap(std::size_t port, std::size_t bank)

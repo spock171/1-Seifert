@@ -2,6 +2,10 @@
 
 //============================================================================================================
 
+const float MIN_TIME = 1e-3f;
+const float MAX_TIME = 10.f;
+const float LAMBDA_BASE = MAX_TIME / MIN_TIME;
+
 struct ADSR : GControls::MicroModule {
 	enum ParamIds {
 		ATTACK_PARAM,
@@ -105,10 +109,10 @@ struct ADSR_F1 : Module
 		config(ADSR::NUM_PARAMS,
 			(GTX__N+1) * (ADSR::NUM_INPUTS  - ADSR::OFF_INPUTS ) + ADSR::OFF_INPUTS,
 			(GTX__N  ) * (ADSR::NUM_OUTPUTS - ADSR::OFF_OUTPUTS) + ADSR::OFF_OUTPUTS);
-		configParam(ADSR::ATTACK_PARAM,  0.0, 1.0, 0.5, "Attack");
-		configParam(ADSR::DECAY_PARAM,   0.0, 1.0, 0.5, "Decay");
-		configParam(ADSR::SUSTAIN_PARAM, 0.0, 1.0, 0.5, "Sustain");
-		configParam(ADSR::RELEASE_PARAM, 0.0, 1.0, 0.5, "Release");
+		configParam(ADSR::ATTACK_PARAM,  0.0, 1.0, 0.5, "Attack", " ms", LAMBDA_BASE, MIN_TIME * 1000);
+		configParam(ADSR::DECAY_PARAM,   0.0, 1.0, 0.5, "Decay", " ms", LAMBDA_BASE, MIN_TIME * 1000);
+		configParam(ADSR::SUSTAIN_PARAM, 0.0, 1.0, 0.5, "Sustain", "%", 0, 100);
+		configParam(ADSR::RELEASE_PARAM, 0.0, 1.0, 0.5, "Release", " ms", LAMBDA_BASE, MIN_TIME * 1000);
 	}
 
 	static constexpr std::size_t imap(std::size_t port, std::size_t bank)

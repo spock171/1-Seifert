@@ -48,9 +48,14 @@ struct VCABank : Module
 {
 	std::array<VCA, GTX__N> inst;
 
-	VCABank() {config(VCA::NUM_PARAMS,
+	VCABank() {
+		config(VCA::NUM_PARAMS,
 			(GTX__N+1) * (VCA::NUM_INPUTS  - VCA::OFF_INPUTS ) + VCA::OFF_INPUTS,
 			(GTX__N  ) * (VCA::NUM_OUTPUTS - VCA::OFF_OUTPUTS) + VCA::OFF_OUTPUTS);
+		configParam(VCA::LEVEL_PARAM, 0.0f, 1.0f, 0.5f, "Level", "%", 0, 100);
+		configParam(VCA::MIX_1_PARAM, 0.0f, 1.0f, 0.5f, "Ch 1 Mix", "%", 0, 100);
+		configParam(VCA::MIX_2_PARAM, 0.0f, 1.0f, 0.5f, "Ch 2 Mix", "%", 0, 100);
+
 	}
 
 	static constexpr std::size_t imap(std::size_t port, std::size_t bank)

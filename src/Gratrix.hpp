@@ -254,34 +254,6 @@ struct KnobSnapTny : RoundKnob
 	static Vec pos()  { return Vec(14.0, 14.0); }  // Copied from SVG so no need to pre-load.
 };
 
-
-//============================================================================================================
-//! \brief Create output function that creates the UI component centered.
-
-template <class TPort> Port *createInputGTX(Vec pos, Module *module, int outputId)
-{
-	return createInput<TPort>(pos.minus(TPort::pos()), module, outputId);
-}
-
-
-//============================================================================================================
-//! \brief Create output function that creates the UI component centered.
-
-template <class TPort> Port *createOutputGTX(Vec pos, Module *module, int outputId)
-{
-	return createPort<TPort>(pos.minus(TPort::pos()), module, outputId);
-}
-
-
-//============================================================================================================
-//! \brief Create param function that creates the UI component centered.
-
-template <class TParamWidget> ParamWidget *createParamGTX(Vec pos, Module *module, int paramId, float minValue, float maxValue, float defaultValue)
-{
-	return createParam<TParamWidget>(pos.minus(TParamWidget::pos()), module, paramId, minValue, maxValue, defaultValue);
-}
-
-
 //============================================================================================================
 //! \brief ...
 

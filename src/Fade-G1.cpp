@@ -39,7 +39,7 @@ struct Fade_G1 : Module
 
 	Fade_G1() {
 		config(NUM_PARAMS, (GTX__N+1) * (NUM_INPUTS  - OFF_INPUTS ) + OFF_INPUTS,(GTX__N  ) * (NUM_OUTPUTS - OFF_OUTPUTS) + OFF_OUTPUTS, NUM_LIGHTS);
-		configParam(BLEND12_PARAM, 0.f, 1.f, 0.5f, "Fade");
+		configParam(BLEND12_PARAM, 0.0f, 1.f, 0.0f, "Fade");
 		lights[IN_1_GREEN].value = 0.0f;  lights[IN_1_RED].value = 1.0f;
 		lights[IN_2_GREEN].value = 1.0f;  lights[IN_2_RED].value = 0.0f;
 	}

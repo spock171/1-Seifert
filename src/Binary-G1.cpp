@@ -52,12 +52,10 @@ struct Binary_G1 : Module
 		config(NUM_PARAMS,
 		(GTX__N+1) * (NUM_INPUTS  - OFF_INPUTS ) + OFF_INPUTS,
 		(GTX__N  ) * (NUM_OUTPUTS - OFF_OUTPUTS) + OFF_OUTPUTS,	NUM_LIGHTS);
-		configParam(FUNCTION_AB_1_PARAM, 0.0, 4.0, 2.0, "");
-		configParam(FUNCTION_AB_2_PARAM, 0.0, 4.0, 2.0, "");
+		configParam(FUNCTION_AB_1_PARAM, 0.0, 4.0, 2.0, "Operator 1");
+		configParam(FUNCTION_AB_2_PARAM, 0.0, 4.0, 2.0, "Operator 2");
 		configParam(INVERT_A_PARAM, 0.0, 1.0, 1.0, "");
 		configParam(INVERT_B_PARAM, 0.0, 1.0, 1.0, "");
-		configParam(FUNCTION_AB_1_PARAM, 0.0, 4.0, 2.0, "");
-		configParam(FUNCTION_AB_2_PARAM, 0.0, 4.0, 2.0, "");
 		configParam(INVERT_1_PARAM, 0.0, 1.0, 1.0, "");
 		configParam(INVERT_2_PARAM, 0.0, 1.0, 1.0, "");
 	}

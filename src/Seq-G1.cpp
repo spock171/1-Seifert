@@ -229,26 +229,26 @@ struct Seq_G1 : Module {
 	Seq_G1() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(CLOCK_PARAM, -2.0f, 6.0f, 2.0f, "Clock tempo", " bpm", 2.f, 60.f);
-		configParam(RUN_PARAM, 0.0f, 1.0f, 0.0f, "");
-		configParam(RESET_PARAM, 0.0f, 1.0f, 0.0f, "");
-		configParam(PROG_PARAM, 0.0f, 11.0f, 0.0f, "");
-		configParam(PLAY_PARAM, 0.0f, 1.0f, 1.0f, "");
-		configParam(EDIT_PARAM, 0.0f, 1.0f, 1.0f, "");
-		configParam(COPY_PARAM, 0.0f, 1.0f, 0.0f, "");
-		configParam(PASTE_PARAM, 0.0f, 1.0f, 0.0f, "");
+		configParam(RUN_PARAM, 0.0f, 1.0f, 0.0f, "Run");
+		configParam(RESET_PARAM, 0.0f, 1.0f, 0.0f, "Reset");
+		configParam(PROG_PARAM, 0.0f, 11.0f, 0.0f, "Select Program");
+		configParam(PLAY_PARAM, 0.0f, 1.0f, 1.0f, "Play");
+		configParam(EDIT_PARAM, 0.0f, 1.0f, 1.0f, "Edit");
+		configParam(COPY_PARAM, 0.0f, 1.0f, 0.0f, "Copy");
+		configParam(PASTE_PARAM, 0.0f, 1.0f, 0.0f, "Paste");
 		configParam(STEPS_PARAM, 1.0f, NOB_COLS, NOB_COLS, "Steps");
-		configParam(CLEAR_PARAM, 0.0f, 1.0f, 0.0f, "");
-		configParam(RANDOM_PARAM, 0.0f, 1.0f, 0.0f, "");
-		configParam(SPAN_R_PARAM, 1.0f, 8.0f, 1.0f, "");
-		configParam(SPAN_C_PARAM, 1.0f, 8.0f, 1.0f, "");
-		configParam(PRG_ROW_PARAM,    0.0f, LCD_ROWS - 1, 0.0f, "");
-		configParam(PRG_COL_PARAM,    0.0f, LCD_COLS - 1, 0.0f, "");
-		configParam(PRG_SPAN_PARAM,   1.0f, LCD_COLS    , 1.0f, "");
-		configParam(PRG_STRIDE_PARAM, 1.0f, LCD_COLS - 1, 1.0f, "");
-		configParam(PRG_NOTE_PARAM,   0.0f,        11.0f, 0.0f, "");
-		configParam(PRG_OCTAVE_PARAM, 0.0f,         8.0f, 4.0f, "");
-		configParam(PRG_VALUE_PARAM,  0.0f,        10.0f, 0.0f, "");
-		configParam(PRG_GATE_PARAM,   0.0f,         3.0f, 0.0f, "");
+		configParam(CLEAR_PARAM, 0.0f, 1.0f, 0.0f, "Clear");
+		configParam(RANDOM_PARAM, 0.0f, 1.0f, 0.0f, "Random");
+		configParam(SPAN_R_PARAM, 1.0f, 8.0f, 1.0f, "Span Row");
+		configParam(SPAN_C_PARAM, 1.0f, 8.0f, 1.0f, "Span Column");
+		configParam(PRG_ROW_PARAM,    0.0f, LCD_ROWS - 1, 0.0f, "Row");
+		configParam(PRG_COL_PARAM,    0.0f, LCD_COLS - 1, 0.0f, "Column");
+		configParam(PRG_SPAN_PARAM,   1.0f, LCD_COLS    , 1.0f, "Span");
+		configParam(PRG_STRIDE_PARAM, 1.0f, LCD_COLS - 1, 1.0f, "Stride");
+		configParam(PRG_NOTE_PARAM,   0.0f,        11.0f, 0.0f, "Note");
+		configParam(PRG_OCTAVE_PARAM, 0.0f,         8.0f, 4.0f, "Octave");
+		configParam(PRG_VALUE_PARAM,  0.0f,        10.0f, 0.0f, "Value");
+		configParam(PRG_GATE_PARAM,   0.0f,         3.0f, 0.0f, "Gate");
 
 		for (std::size_t row = 0; row < NOB_ROWS; ++row)
 		{
