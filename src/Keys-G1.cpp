@@ -70,18 +70,18 @@ struct Keys_G1 : Module
 
 		for (std::size_t i=0; i<GTX__N; ++i)
 		{
-			if (inputs[imap(GATE_1R_INPUT, i)].isConnected()) decode(&leds[KEY_LIGHT_1], 0, inputs[imap(GATE_1R_INPUT,      i)], inputs[imap(VOCT_1R_INPUT, i)]);
-			else                                       decode(&leds[KEY_LIGHT_1], 0, inputs[imap(GATE_1R_INPUT, GTX__N)], inputs[imap(VOCT_1R_INPUT, i)]);
-			if (inputs[imap(GATE_1G_INPUT, i)].isConnected()) decode(&leds[KEY_LIGHT_1], 1, inputs[imap(GATE_1G_INPUT,      i)], inputs[imap(VOCT_1G_INPUT, i)]);
-			else                                       decode(&leds[KEY_LIGHT_1], 1, inputs[imap(GATE_1G_INPUT, GTX__N)], inputs[imap(VOCT_1G_INPUT, i)]);
-			if (inputs[imap(GATE_1B_INPUT, i)].isConnected()) decode(&leds[KEY_LIGHT_1], 2, inputs[imap(GATE_1B_INPUT,      i)], inputs[imap(VOCT_1B_INPUT, i)]);
-			else                                       decode(&leds[KEY_LIGHT_1], 2, inputs[imap(GATE_1B_INPUT, GTX__N)], inputs[imap(VOCT_1B_INPUT, i)]);
-			if (inputs[imap(GATE_2R_INPUT, i)].isConnected()) decode(&leds[KEY_LIGHT_2], 0, inputs[imap(GATE_2R_INPUT,      i)], inputs[imap(VOCT_2R_INPUT, i)]);
-			else                                       decode(&leds[KEY_LIGHT_2], 0, inputs[imap(GATE_2R_INPUT, GTX__N)], inputs[imap(VOCT_2R_INPUT, i)]);
-			if (inputs[imap(GATE_2G_INPUT, i)].isConnected()) decode(&leds[KEY_LIGHT_2], 1, inputs[imap(GATE_2G_INPUT,      i)], inputs[imap(VOCT_2G_INPUT, i)]);
-			else                                       decode(&leds[KEY_LIGHT_2], 1, inputs[imap(GATE_2G_INPUT, GTX__N)], inputs[imap(VOCT_2G_INPUT, i)]);
-			if (inputs[imap(GATE_2B_INPUT, i)].isConnected()) decode(&leds[KEY_LIGHT_2], 2, inputs[imap(GATE_2B_INPUT,      i)], inputs[imap(VOCT_2B_INPUT, i)]);
-			else                                       decode(&leds[KEY_LIGHT_2], 2, inputs[imap(GATE_2B_INPUT, GTX__N)], inputs[imap(VOCT_2B_INPUT, i)]);
+			if (inputs[imap(GATE_1R_INPUT, i)].isConnected()) decode(&leds[KEY_LIGHT_1], 0, inputs[imap(GATE_1R_INPUT,i)], inputs[imap(VOCT_1R_INPUT, i)]);
+			else decode(&leds[KEY_LIGHT_1], 0, inputs[imap(GATE_1R_INPUT, GTX__N)], inputs[imap(VOCT_1R_INPUT, i)]);
+			if (inputs[imap(GATE_1G_INPUT, i)].isConnected()) decode(&leds[KEY_LIGHT_1], 1, inputs[imap(GATE_1G_INPUT,i)], inputs[imap(VOCT_1G_INPUT, i)]);
+			else decode(&leds[KEY_LIGHT_1], 1, inputs[imap(GATE_1G_INPUT, GTX__N)], inputs[imap(VOCT_1G_INPUT, i)]);
+			if (inputs[imap(GATE_1B_INPUT, i)].isConnected()) decode(&leds[KEY_LIGHT_1], 2, inputs[imap(GATE_1B_INPUT,i)], inputs[imap(VOCT_1B_INPUT, i)]);
+			else decode(&leds[KEY_LIGHT_1], 2, inputs[imap(GATE_1B_INPUT, GTX__N)], inputs[imap(VOCT_1B_INPUT, i)]);
+			if (inputs[imap(GATE_2R_INPUT, i)].isConnected()) decode(&leds[KEY_LIGHT_2], 0, inputs[imap(GATE_2R_INPUT,i)], inputs[imap(VOCT_2R_INPUT, i)]);
+			else decode(&leds[KEY_LIGHT_2], 0, inputs[imap(GATE_2R_INPUT, GTX__N)], inputs[imap(VOCT_2R_INPUT, i)]);
+			if (inputs[imap(GATE_2G_INPUT, i)].isConnected()) decode(&leds[KEY_LIGHT_2], 1, inputs[imap(GATE_2G_INPUT,i)], inputs[imap(VOCT_2G_INPUT, i)]);
+			else decode(&leds[KEY_LIGHT_2], 1, inputs[imap(GATE_2G_INPUT, GTX__N)], inputs[imap(VOCT_2G_INPUT, i)]);
+			if (inputs[imap(GATE_2B_INPUT, i)].isConnected()) decode(&leds[KEY_LIGHT_2], 2, inputs[imap(GATE_2B_INPUT,i)], inputs[imap(VOCT_2B_INPUT, i)]);
+			else decode(&leds[KEY_LIGHT_2], 2, inputs[imap(GATE_2B_INPUT, GTX__N)], inputs[imap(VOCT_2B_INPUT, i)]);
 		}
 
 		// Write output in one go, seems to prevent flicker
@@ -172,10 +172,12 @@ struct GtxWidget : ModuleWidget
 			addChild(createLight<SmallLight<RedGreenBlueLight>>(GControls::l_s(GControls::gx(i) + 20, GControls::fy(0+0.08) + 5), module, Keys_G1::KEY_LIGHT_2 + 3 * (i * 12 +  9)));  // A
 			addChild(createLight<SmallLight<RedGreenBlueLight>>(GControls::l_s(GControls::gx(i) + 25, GControls::fy(0+0.08) - 5), module, Keys_G1::KEY_LIGHT_2 + 3 * (i * 12 + 10)));  // Bb
 			addChild(createLight<SmallLight<RedGreenBlueLight>>(GControls::l_s(GControls::gx(i) + 30, GControls::fy(0+0.08) + 5), module, Keys_G1::KEY_LIGHT_2 + 3 * (i * 12 + 11)));  // B
+/*
 		}
 
 		for (std::size_t i=0; i<6; ++i)
 		{
+*/
 			addChild(createLight<SmallLight<RedGreenBlueLight>>(GControls::l_s(GControls::gx(i) - 30, GControls::fy(0-0.28) + 5), module, Keys_G1::KEY_LIGHT_1 + 3 * (i * 12 +  0)));  // C
 			addChild(createLight<SmallLight<RedGreenBlueLight>>(GControls::l_s(GControls::gx(i) - 25, GControls::fy(0-0.28) - 5), module, Keys_G1::KEY_LIGHT_1 + 3 * (i * 12 +  1)));  // C#
 			addChild(createLight<SmallLight<RedGreenBlueLight>>(GControls::l_s(GControls::gx(i) - 20, GControls::fy(0-0.28) + 5), module, Keys_G1::KEY_LIGHT_1 + 3 * (i * 12 +  2)));  // D
@@ -191,6 +193,5 @@ struct GtxWidget : ModuleWidget
 		}
 	}
 };
-
 
 Model *modelKeys_G1 = createModel<Keys_G1, GtxWidget>("Keys-G1");

@@ -45,7 +45,6 @@ struct VU_G1 : Module
 			for (int j = 0; j < NUM_LIGHTS; j++)
 			{
 				float b = clamp(dB2 + (j+1), 0.0f, 1.0f);
-
 				lights[NUM_LIGHTS * i + j].setSmoothBrightness(b * 0.9f, 10);
 			}
 		}
@@ -66,7 +65,6 @@ struct GtxWidget : ModuleWidget
 		#if GTX__SAVE_SVG
 		{
 			PanelGen pg(asset::plugin(pluginInstance, "build/res/VU-G1.svg"), box.size, "VU-G1");
-
 			pg.nob_big(0, 0, "VOLUME");
 			pg.bus_in (0, 2, "IN");
 		}

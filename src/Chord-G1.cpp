@@ -184,6 +184,7 @@ struct Chord_G1 : Module
 		leds[FUND_LIGHT + input.key] = 1.0f;  // Red
 
 		// Chord bit
+		std::size_t i = 0;
 		if (act_prm)
 		{
 			// Detect buttons and deduce what's enabled
@@ -192,6 +193,13 @@ struct Chord_G1 : Module
 				if (note_trigger[j].process(params[j + NOTE_PARAM].getValue()))
 				{
 					note_enable[prg_prm.key][j] = !note_enable[prg_prm.key][j];
+				}
+				if (note_enable[prg_prm.key][j])
+				{
+					leds[NOTE_LIGHT + j*2] = 1.0f; // Green
+					outputs[omap(GATE_OUTPUT, i)].setVoltage(gate);
+					outputs[omap(VOCT_OUTPUT, i)].setVoltage(input.out + static_cast<float>(j) / 12.0f);
+					++i;
 				}
 			}
 		}
@@ -206,51 +214,9 @@ struct Chord_G1 : Module
 						note_enable[prg_prm.key][j] = false;
 					}
 				}
-			}
-		}
-
-		// Based on what's enabled turn on leds
-		if (act_prm)
-		{
-			for (std::size_t j = 0; j < T; ++j)
-			{
-				if (note_enable[prg_prm.key][j])
-				{
-					leds[NOTE_LIGHT + j*2] = 1.0f; // Green
-				}
-			}
-		}
-		else
-		{
-			for (std::size_t j = 0; j < T; ++j)
-			{
 				if (note_enable[prg_cv.key][j])
 				{
 					leds[NOTE_LIGHT + j*2+1] = 1.0f; // Red
-				}
-			}
-		}
-
-		// Based on what's enabled generate output
-		std::size_t i = 0;
-		if (act_prm)
-		{
-			for (std::size_t j = 0; j < T; ++j)
-			{
-				if (note_enable[prg_prm.key][j])
-				{
-					outputs[omap(GATE_OUTPUT, i)].setVoltage(gate);
-					outputs[omap(VOCT_OUTPUT, i)].setVoltage(input.out + static_cast<float>(j) / 12.0f);
-					++i;
-				}
-			}
-		}
-		else
-		{
-			for (std::size_t j = 0; j < T; ++j)
-			{
-				if (note_enable[prg_cv.key][j])
-				{
 					outputs[omap(GATE_OUTPUT, i)].setVoltage(gate);
 					outputs[omap(VOCT_OUTPUT, i)].setVoltage(input.out + static_cast<float>(j) / 12.0f);
 					++i;
