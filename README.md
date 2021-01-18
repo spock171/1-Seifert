@@ -9,3 +9,5 @@ Chord-G1: Now playing notes in program-mode.<br>
 Some Tooltips added.<br>
 
 ![Gratrix Modules screenshot](http://gratrix.net/vcvrack/shot.png)
+
+![V 1.1.6 Modules](https://github.com/spock171/1-Seifert/blob/main/Modules.jpg)
