@@ -58,6 +58,7 @@ void ADSR::step() {
 
 	const float base = 20000.0f;
 	const float maxTime = 10.0f;
+
 	if (gated) {
 		if (decaying) {
 			// Decay
