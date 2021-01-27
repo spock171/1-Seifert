@@ -368,6 +368,11 @@ struct GtxWidget : ModuleWidget
 
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Scope-G1.svg")));
 
+		addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+		addChild(createWidget<ScrewSilver>(Vec(box.size.x-30, 0)));
+		addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+		addChild(createWidget<ScrewSilver>(Vec(box.size.x-30, 365)));
+
 		{
 			Display_Scope *display_Scope  = new Display_Scope();
 			display_Scope->module   = module;
