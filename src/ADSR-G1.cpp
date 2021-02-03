@@ -39,13 +39,13 @@ struct ADSR : GControls::MicroModule {
 	dsp::SchmittTrigger trigger;
 
 	ADSR() : MicroModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
-	void step();
+	void step(float s_Time);
 };
 
 
 //============================================================================================================
 
-void ADSR::step() {
+void ADSR::step(float s_Time) {
 	float attack = clamp(params[ATTACK_INPUT].getValue() + inputs[ATTACK_INPUT].getVoltage() / 10.0f, 0.0f, 1.0f);
 	float decay = clamp(params[DECAY_PARAM].getValue() + inputs[DECAY_INPUT].getVoltage() / 10.0f, 0.0f, 1.0f);
 	float sustain = clamp(params[SUSTAIN_PARAM].getValue() + inputs[SUSTAIN_INPUT].getVoltage() / 10.0f, 0.0f, 1.0f);
@@ -66,7 +66,7 @@ void ADSR::step() {
 				env = sustain;
 			}
 			else {
-				env += powf(base, 1 - decay) / maxTime * (sustain - env) * APP->engine->getSampleTime();
+				env += powf(base, 1 - decay) / maxTime * (sustain - env) * s_Time;
 			}
 		}
 		else {
@@ -76,7 +76,7 @@ void ADSR::step() {
 				env = 1.0f;
 			}
 			else {
-				env += powf(base, 1 - attack) / maxTime * (1.01f - env) * APP->engine->getSampleTime();
+				env += powf(base, 1 - attack) / maxTime * (1.01f - env) * s_Time;
 			}
 			if (env >= 1.0f) {
 				env = 1.0f;
@@ -90,7 +90,7 @@ void ADSR::step() {
 			env = 0.0f;
 		}
 		else {
-			env += powf(base, 1 - release) / maxTime * (0.0f - env) * APP->engine->getSampleTime();
+			env += powf(base, 1 - release) / maxTime * (0.0f - env) * s_Time;
 		}
 		decaying = false;
 	}
@@ -129,13 +129,14 @@ struct ADSR_F1 : Module
 
 	void process(const ProcessArgs& args) override
 	{
+		float sample_Time = args.sampleTime;
 		for (std::size_t i=0; i<GTX__N; ++i)
 		{
 			for (std::size_t p=0; p<ADSR::NUM_PARAMS;  ++p) inst[i].params[p]  = params[p];
 			for (std::size_t p=0; p<ADSR::NUM_INPUTS;  ++p) inst[i].inputs[p]  = inputs[imap(p, i)].isConnected() ? inputs[imap(p, i)] : inputs[imap(p, GTX__N)];
 			for (std::size_t p=0; p<ADSR::NUM_OUTPUTS; ++p) inst[i].outputs[p] = outputs[omap(p, i)];
 
-			inst[i].step();
+			inst[i].step(sample_Time);
 
 			for (std::size_t p=0; p<ADSR::NUM_OUTPUTS; ++p) outputs[omap(p, i)].setVoltage(inst[i].outputs[p].value);
 		}

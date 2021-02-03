@@ -40,7 +40,7 @@ struct Scope : Module {
 		int bufferIndex = 0;
 		float frameIndex = 0;
 		dsp::SchmittTrigger resetTrigger;
-		void step(bool external, int frameCount, const Param &trig_param, const Input &x_input, const Input &trig_input);
+		void step(bool external, int frameCount, const Param &trig_param, const Input &x_input, const Input &trig_input, float s_Rate);
 	};
 
 	bool external = false;
@@ -69,14 +69,15 @@ struct Scope : Module {
 
 		// Compute time
 		float deltaTime = powf(2.0f, params[TIME_PARAM].getValue());
-		int frameCount = (int)ceilf(deltaTime * APP->engine->getSampleRate());
+		float sample_Rate = args.sampleRate;
+		int frameCount = (int)ceilf(deltaTime * sample_Rate);
 
 		Input x_sum, trig_sum;
 		int count = 0;
 
 		for (int k=0; k<GTX__N; ++k)
 		{
-			voice[k].step(external, frameCount, params[TRIG_PARAM], inputs[imap(X_INPUT, k)], inputs[imap(TRIG_INPUT, k)]);
+			voice[k].step(external, frameCount, params[TRIG_PARAM], inputs[imap(X_INPUT, k)], inputs[imap(TRIG_INPUT, k)], sample_Rate);
 	
 			if (inputs[imap(X_INPUT, k)].isConnected())
 			{
@@ -97,11 +98,11 @@ struct Scope : Module {
 			x_sum.value /= static_cast<float>(count);
 		}
 	
-		voice[GTX__N].step(external, frameCount, params[TRIG_PARAM], x_sum, trig_sum);
+		voice[GTX__N].step(external, frameCount, params[TRIG_PARAM], x_sum, trig_sum, sample_Rate);
 	}
 };
 
-void Scope::Voice::step(bool external, int frameCount, const Param &trig_param, const Input &x_input, const Input &trig_input)
+void Scope::Voice::step(bool external, int frameCount, const Param &trig_param, const Input &x_input, const Input &trig_input, float s_Rate)
 {
 	// Copy active state
 	active = x_input.active;
@@ -140,13 +141,13 @@ void Scope::Voice::step(bool external, int frameCount, const Param &trig_param, 
 
 		// Reset if triggered
 		float holdTime = 0.1f;
-		if (resetTrigger.process(rescale(gate, trig_param.value - 0.1f, trig_param.value, 0.f, 1.f)) || (frameIndex >= APP->engine->getSampleRate() * holdTime))
+		if (resetTrigger.process(rescale(gate, trig_param.value - 0.1f, trig_param.value, 0.f, 1.f)) || (frameIndex >= s_Rate * holdTime))
 		{
 			bufferIndex = 0; frameIndex = 0; return;
 		}
 
 		// Reset if we've waited too long
-		if (frameIndex >= APP->engine->getSampleRate() * holdTime)
+		if (frameIndex >= s_Rate * holdTime)
 		{
 			bufferIndex = 0; frameIndex = 0; return;
 		}

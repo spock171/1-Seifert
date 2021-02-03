@@ -107,25 +107,17 @@ struct VoltageControlledOscillator {
 				else
 					sinBuffer[i] = -1.f + 16.f * powf(phase - 0.75f, 2);
 				sinBuffer[i] *= 1.08f;
+				triBuffer[i] = 1.25f * interpolateLinear(triTable, phase * 2047.f);
+				sawBuffer[i] = 1.66f * interpolateLinear(sawTable, phase * 2047.f);
 			}
 			else {
 				sinBuffer[i] = sinf(2.f*M_PI * phase);
-			}
-			if (analog) {
-				triBuffer[i] = 1.25f * interpolateLinear(triTable, phase * 2047.f);
-			}
-			else {
 				if (phase < 0.25f)
 					triBuffer[i] = 4.f * phase;
 				else if (phase < 0.75f)
 					triBuffer[i] = 2.f - 4.f * phase;
 				else
 					triBuffer[i] = -4.f + 4.f * phase;
-			}
-			if (analog) {
-				sawBuffer[i] = 1.66f * interpolateLinear(sawTable, phase * 2047.f);
-			}
-			else {
 				if (phase < 0.5f)
 					sawBuffer[i] = 2.f * phase;
 				else

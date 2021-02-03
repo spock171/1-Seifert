@@ -33,51 +33,62 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // The clipping function of a transistor pair is approximately tanh(x)
 // TODO: Put this in a lookup table. 5th order approx doesn't seem to cut it
-inline float clip(float x) {
-	return tanhf(x);
+using simd::float_4;
+
+template <typename T>
+static T clip(T x) {
+	// return std::tanh(x);
+	// Pade approximant of tanh
+	x = simd::clamp(x, -3.f, 3.f);
+	return x * (27 + x * x) / (27 + 9 * x * x);
 }
 
+template <typename T>
 struct LadderFilter {
-	float cutoff = 1000.0f;
-	float resonance = 1.0f;
-	float state[4] = {};
+	T omega0;
+	T resonance = 1;
+	T state[4];
+	T input;
 
-	void calculateDerivatives(float input, float *dstate, const float *state) {
-		float cutoff2Pi = 2*M_PI * cutoff;
-
-		float satstate0 = clip(state[0]);
-		float satstate1 = clip(state[1]);
-		float satstate2 = clip(state[2]);
-
-		dstate[0] = cutoff2Pi * (clip(input - resonance * state[3]) - satstate0);
-		dstate[1] = cutoff2Pi * (satstate0 - satstate1);
-		dstate[2] = cutoff2Pi * (satstate1 - satstate2);
-		dstate[3] = cutoff2Pi * (satstate2 - clip(state[3]));
+	LadderFilter() {
+		reset();
+		setCutoff(0);
 	}
 
-	void process(float input, float dt) {
-		float deriv1[4], deriv2[4], deriv3[4], deriv4[4], tempState[4];
-
-		calculateDerivatives(input, deriv1, state);
-		for (int i = 0; i < 4; i++)
-			tempState[i] = state[i] + 0.5f * dt * deriv1[i];
-
-		calculateDerivatives(input, deriv2, tempState);
-		for (int i = 0; i < 4; i++)
-			tempState[i] = state[i] + 0.5f * dt * deriv2[i];
-
-		calculateDerivatives(input, deriv3, tempState);
-		for (int i = 0; i < 4; i++)
-			tempState[i] = state[i] + dt * deriv3[i];
-
-		calculateDerivatives(input, deriv4, tempState);
-		for (int i = 0; i < 4; i++)
-			state[i] += (1.0f / 6.0f) * dt * (deriv1[i] + 2.0f * deriv2[i] + 2.0f * deriv3[i] + deriv4[i]);
-	}
 	void reset() {
 		for (int i = 0; i < 4; i++) {
-			state[i] = 0.0f;
+			state[i] = 0;
 		}
+	}
+
+	void setCutoff(T cutoff) {
+		omega0 = 2 * T(M_PI) * cutoff;
+	}
+
+	void process(T input, T dt) {
+		dsp::stepRK4(T(0), dt, state, 4, [&](T t, const T x[], T dxdt[]) {
+			T inputt = crossfade(this->input, input, t / dt);
+			T inputc = clip(inputt - resonance * x[3]);
+			T yc0 = clip(x[0]);
+			T yc1 = clip(x[1]);
+			T yc2 = clip(x[2]);
+			T yc3 = clip(x[3]);
+
+			dxdt[0] = omega0 * (inputc - yc0);
+			dxdt[1] = omega0 * (yc0 - yc1);
+			dxdt[2] = omega0 * (yc1 - yc2);
+			dxdt[3] = omega0 * (yc2 - yc3);
+		});
+
+		this->input = input;
+	}
+
+	T lowpass() {
+		return state[3];
+	}
+	T highpass() {
+		// TODO This is incorrect when `resonance > 0`. Is the math wrong?
+		return clip((input - resonance * state[3]) - 4 * state[0] + 6 * state[1] - 4 * state[2] + state[3]);
 	}
 };
 
@@ -106,10 +117,10 @@ struct VCF : GControls::MicroModule {
 		NUM_OUTPUTS
 	};
 
-	LadderFilter filter;
+	LadderFilter<float> filter;
 
 	VCF() : MicroModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) {}
-	void step();
+	void step(float s_Rate);
 	void onReset() {
 		filter.reset();
 	}
@@ -118,32 +129,41 @@ struct VCF : GControls::MicroModule {
 
 //============================================================================================================
 
-void VCF::step() {
+void VCF::step(float s_Rate) {
 	float input = inputs[IN_INPUT].getVoltage() / 5.0f;
-	float drive = params[DRIVE_PARAM].getValue() + inputs[DRIVE_INPUT].getVoltage() / 10.0f;
+	float fineParam = params[FINE_PARAM].getValue();
+	fineParam = dsp::quadraticBipolar(fineParam * 2.f - 1.f) * 7.f / 12.f;
+
+	float freqCvParam = params[FREQ_CV_PARAM].getValue();
+	freqCvParam = dsp::quadraticBipolar(freqCvParam);
+	float freqParam = params[FREQ_PARAM].getValue();
+	freqParam = freqParam * 10.f - 5.f;
+
+	float driveParam = params[DRIVE_PARAM].getValue();
+	float drive = driveParam + inputs[DRIVE_INPUT].getVoltage() / 10.0f;
 	float gain = powf(100.0f, drive);
 	input *= gain;
-	// Add -60dB noise to bootstrap self-oscillation
+	// Add -120dB noise to bootstrap self-oscillation
 	input += 1e-6f * (2.0f*random::uniform() - 1.0f);
 
 	// Set resonance
-	float res = params[RES_PARAM].getValue() + inputs[RES_INPUT].getVoltage() / 5.0f;
-	res = 5.5f * clamp(res, 0.0f, 1.0f);
-	filter.resonance = res;
+	float res = params[RES_PARAM].getValue() + inputs[RES_INPUT].getVoltage() / 10.0f;
+	res = clamp(res, 0.0f, 1.0f);
+	filter.resonance = simd::pow(res, 2) * 10.f;
 
 	// Set cutoff frequency
-	float cutoffExp = params[FREQ_PARAM].getValue() + params[FREQ_CV_PARAM].getValue() * inputs[FREQ_INPUT].getVoltage() / 5.0f;
-	cutoffExp = clamp(cutoffExp, 0.0f, 1.0f);
-	const float minCutoff = 15.0f;
-	const float maxCutoff = 8400.0f;
-	filter.cutoff = minCutoff * powf(maxCutoff / minCutoff, cutoffExp);
+	float cutoffExp = freqParam + fineParam + freqCvParam * inputs[FREQ_INPUT].getVoltage();
+	cutoffExp = dsp::FREQ_C4 * simd::pow(2.f, cutoffExp);
+	cutoffExp = clamp(cutoffExp, 1.f, 8000.f);
+	filter.setCutoff(cutoffExp);
+
 
 	// Push a sample to the state filter
-	filter.process(input, 1.0f/APP->engine->getSampleRate());
+	filter.process(input, 1.0f/s_Rate);
 
 	// Set outputs
-	outputs[LPF_OUTPUT].setVoltage(5.0f * filter.state[3]);
-	outputs[HPF_OUTPUT].setVoltage(5.0f * (input - filter.state[3]));
+	outputs[LPF_OUTPUT].setVoltage(5.0f * filter.lowpass());
+	outputs[HPF_OUTPUT].setVoltage(5.0f * filter.highpass());
 }
 
 
@@ -174,13 +194,14 @@ struct VCFBank : Module
 
 	void process(const ProcessArgs& args) override
 	{
+		float sample_Rate = args.sampleRate;
 		for (std::size_t i=0; i<GTX__N; ++i)
 		{
 			for (std::size_t p=0; p<VCF::NUM_PARAMS;  ++p) inst[i].params[p]  = params[p];
 			for (std::size_t p=0; p<VCF::NUM_INPUTS;  ++p) inst[i].inputs[p]  = inputs[imap(p, i)].isConnected() ? inputs[imap(p, i)] : inputs[imap(p, GTX__N)];
 			for (std::size_t p=0; p<VCF::NUM_OUTPUTS; ++p) inst[i].outputs[p] = outputs[omap(p, i)];
 
-			inst[i].step();
+			inst[i].step(sample_Rate);
 
 			for (std::size_t p=0; p<VCF::NUM_OUTPUTS; ++p) outputs[omap(p, i)].setVoltage(inst[i].outputs[p].value);
 		}
