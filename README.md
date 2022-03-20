@@ -8,7 +8,7 @@ Now running in VCV-Rack V1.1.6.<br>
 Chord-G1: Now playing notes in program-mode.<br>
 Some Tooltips added.<br>
 
-Gratrix VCV2 uploaded to Gratrix-2.0.1-win.zip
+Gratrix-Modules for VCV2 uploaded to Gratrix-2.0.1-win.zip
 
 ![Gratrix Modules screenshot](http://gratrix.net/vcvrack/shot.png)
 
