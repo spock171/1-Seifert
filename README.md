@@ -4,7 +4,7 @@ Please head over to [gratrix.net/vcvrack](http://gratrix.net/vcvrack/) for detai
 
 Notes by Frank Seifert:<br>
 Improvements:<br>
-Now running in VCV-Rack V1.1.6.<br>
+Now running in VCV-Rack V1.1.6. and V2.0.6<br>
 Chord-G1: Now playing notes in program-mode.<br>
 Some Tooltips added.<br>
 
