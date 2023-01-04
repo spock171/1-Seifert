@@ -10,7 +10,7 @@ Some Tooltips added.<br>
 
 Gratrix-Modules for VCV2 uploaded to Gratrix-2.0.1-win.zip
 
-Known Issues:
+Known Issues:<br>
 VCVRack will crash, when only Gratrix-modules are shown in module-browser and zoom-level is changing.
 
 ![Gratrix Modules screenshot](http://gratrix.net/vcvrack/shot.png)
